@@ -1,0 +1,37 @@
+services:
+  database_service:
+    container_name: database_service
+    image:  developmentinlogicairegistry.azurecr.io/database_service:latest
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    env_file:
+      - .env.database_service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  login_auth_service:
+    container_name: login_auth_service
+    image:  developmentinlogicairegistry.azurecr.io/login_auth_service:latest
+    restart: unless-stopped
+    ports:
+      - "6001:6001"
+    env_file:
+      - .env.login_auth_service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6001/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+networks:
+  shared_network:
+    external: true

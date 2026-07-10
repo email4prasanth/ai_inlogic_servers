@@ -1,0 +1,171 @@
+trigger:
+  branches:
+    include:
+      - develop
+  paths:
+    include:
+      - services/database_service/**
+      - azure-pipelines.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: AZURE_ACCESS_GROUP_DEV
+
+- name: TF_WORKSPACE
+  value: development
+
+- name: SERVICE_NAME
+  value: database_service
+
+- name: SERVICE_PATH
+  value: services/database_service
+
+- name: VM_USER
+  value: adminuser
+
+steps:
+
+# Checkout
+- checkout: self
+  clean: true
+
+# Image Tag
+- script: |
+    IMAGE_TAG=$(git rev-parse --short HEAD)
+    echo "##vso[task.setvariable variable=IMAGE_TAG]$IMAGE_TAG"
+    echo "Image Tag: $IMAGE_TAG"
+  displayName: "Generate Image Tag"
+
+# Azure Login
+- script: |
+    az login --service-principal \
+      --username $(AZURE-CLIENT-ID) \
+      --password $(AZURE-CLIENT-SECRET) \
+      --tenant $(AZURE-TENANT-ID)
+
+    az account set \
+      --subscription $(AZURE-SUBSCRIPTION-ID)
+
+    az account show
+  displayName: "Azure Login"
+
+# Login to ACR
+- script: |
+    az acr login --name $(DEVELOPMENT_ACR_NAME)
+  displayName: "Login to Azure Container Registry"
+
+# Build Image
+- script: |
+    docker build \
+      -t $(DEVELOPMENT_ACR_LOGIN_SERVER)/$(SERVICE_NAME):$(IMAGE_TAG) \
+      .
+  workingDirectory: $(SERVICE_PATH)
+  displayName: "Build Docker Image"
+
+# Push Image
+- script: |
+    docker push \
+      $(DEVELOPMENT_ACR_LOGIN_SERVER)/$(SERVICE_NAME):$(IMAGE_TAG)
+  displayName: "Push Docker Image"
+
+# Cleanup old images
+- script: |
+
+    KEEP=10
+    tags=$(az acr repository show-tags \
+      --name $(DEVELOPMENT_ACR_NAME) \
+      --repository $(SERVICE_NAME) \
+      --orderby time_desc \
+      --output tsv | tail -n +$((KEEP+1)))
+
+    if [ -z "$tags" ]; then
+      echo "No old tags found."
+    else
+      for tag in $tags
+      do
+        echo "Deleting $tag"
+        az acr repository delete \
+          --name $(DEVELOPMENT_ACR_NAME) \
+          --image $(SERVICE_NAME):$tag \
+          --yes
+      done
+    fi
+  displayName: "Cleanup Old Images"
+
+# Create Environment File
+- script: |
+
+    set -e
+
+    KEYVAULT=$(DEVELOPMENT_KEY_VAULT_NAME)
+
+    DB_HOST=$(az keyvault secret show --vault-name "$KEYVAULT" --name public-db-endpoint --query value -o tsv)
+    DB_NAME=$(az keyvault secret show --vault-name "$KEYVAULT" --name public-database-name --query value -o tsv)
+    DB_USER=$(az keyvault secret show --vault-name "$KEYVAULT" --name public-db-admin-username --query value -o tsv)
+    DB_PASSWORD=$(az keyvault secret show --vault-name "$KEYVAULT" --name public-db-admin-password --query value -o tsv)
+
+    ENV=$(az keyvault secret show --vault-name "$KEYVAULT" --name dev-env --query value -o tsv)
+    DATABASE_URL_DEVELOPMENT=$(az keyvault secret show --vault-name "$KEYVAULT" --name database-url-prod --query value -o tsv)
+    INTERNAL_SERVICE_TOKEN=$(az keyvault secret show --vault-name "$KEYVAULT" --name internal-service-token --query value -o tsv)
+    ADMIN_EMAIL=$(az keyvault secret show --vault-name "$KEYVAULT" --name admin-email --query value -o tsv)
+    ADMIN_PASSWORD=$(az keyvault secret show --vault-name "$KEYVAULT" --name admin-password --query value -o tsv)
+    CONFIG_ENCRYPTION_KEY=$(az keyvault secret show --vault-name "$KEYVAULT" --name config-encryption-key --query value -o tsv)
+
+    cat > .env.databaseservice <<EOF
+    DB_HOST=${DB_HOST}
+    DB_NAME=${DB_NAME}
+    DB_USER=${DB_USER}
+    DB_PASSWORD=${DB_PASSWORD}
+    DATABASE_URL_DEVELOPMENT=${DATABASE_URL_DEVELOPMENT}
+    INTERNAL_SERVICE_TOKEN=${INTERNAL_SERVICE_TOKEN}
+    ADMIN_EMAIL=${ADMIN_EMAIL}
+    ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    CONFIG_ENCRYPTION_KEY=${CONFIG_ENCRYPTION_KEY}
+    NODE_ENV=${ENV}
+    EOF
+
+    echo "Generated .env.databaseservice"
+
+    # Uncomment for debugging only (avoid printing secrets in production)
+    # cat .env.databaseservice
+
+  displayName: "Generate .env.databaseservice"
+
+# Download SSH Key
+- task: DownloadSecureFile@1
+  name: sshkey
+  displayName: Download SSH Key
+  inputs:
+    secureFile: id_rsa_dev
+
+# Configure SSH
+- script: |
+    mkdir -p ~/.ssh
+    cp $(sshkey.secureFilePath) ~/.ssh/id_rsa_dev
+    chmod 600 ~/.ssh/id_rsa_dev
+    ssh-keyscan -H $(DEVELOPMENT_BACKEND_VM_HOST) >> ~/.ssh/known_hosts
+  displayName: Configure SSH
+
+# Copy Environment File
+- script: |
+    scp \
+      .env.databaseservice \
+      $(VM_USER)@$(DEVELOPMENT_BACKEND_VM_HOST):/tmp/
+  displayName: Copy Environment File
+
+# Deploy
+- script: |
+    ssh $(VM_USER)@$(DEVELOPMENT_BACKEND_VM_HOST) << EOF
+    set -e
+    sudo mv /tmp/.env.databaseservice /app/backend/.env.databaseservice
+    cd /app/backend
+    sed -i "s|image:.*database_service:.*|image: $(DEVELOPMENT_ACR_LOGIN_SERVER)/database_service:$(IMAGE_TAG)|" docker-compose.yml
+    az acr login --name $(DEVELOPMENT_ACR_NAME)
+    docker compose pull database_service
+    docker compose up -d --no-deps database_service
+    docker image prune -f
+    EOF
+
+  displayName: Deploy database_service

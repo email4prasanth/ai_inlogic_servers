@@ -57,3 +57,39 @@ touch /opt/test.txt
 apt update
 systemctl restart ssh
 ```
+- to give docker logs
+```sh
+# 3. Add users to docker group as well (for Docker access)
+sudo usermod -aG docker soumyadeep
+sudo usermod -aG docker rishav
+sudo usermod -aG docker kavya
+
+# 4. Verify group memberships
+groups soumyadeep
+groups rishav
+groups kavya
+```
+- Configure Sudoers for developers Group
+```sh
+sudo visudo -f /etc/sudoers.d/developers
+
+# Allow developers to run Docker commands without password
+%developers ALL=(ALL) NOPASSWD: /usr/bin/docker
+# or
+# Allow developers to run specific Docker commands without password
+%developers ALL=(ALL) NOPASSWD: /usr/bin/docker ps, /usr/bin/docker logs, /usr/bin/docker inspect, /usr/bin/docker stats, /usr/bin/docker restart, /usr/bin/docker stop, /usr/bin/docker start
+
+# Add the rule directly
+echo '%developers ALL=(ALL) NOPASSWD: /usr/bin/docker' | sudo tee /etc/sudoers.d/developers
+```
+- cross check
+```sh
+# View the file
+sudo cat /etc/sudoers.d/developers
+
+# Check permissions (should be -r--r----- or -r--r--r--)
+ls -al /etc/sudoers.d/developers
+
+# Validate sudoers syntax
+sudo visudo -c
+```

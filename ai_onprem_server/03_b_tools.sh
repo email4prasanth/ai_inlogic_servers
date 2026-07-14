@@ -75,3 +75,13 @@ sudo chmod -R 755 /app/backend/
 sudo chown adminuser:adminuser /app/backend/
 touch .env.databaseservice
 nano docker-compose.yml
+```
+- setup frontend
+```sh
+sudo mkdir -p /app/frontend && cd /app/frontend/
+ls -al
+sudo chmod -R 755 /app/frontend/
+sudo chown adminuser:adminuser /app/frontend/
+touch .env.frontend
+nano docker-compose.yml
+```

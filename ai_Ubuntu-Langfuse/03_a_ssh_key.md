@@ -1,7 +1,7 @@
 ### Create an SSH key pair
 1. On your local machine (or any Linux system), generate a key pair:
 ```sh
-ssh-keygen -t rsa -b 4096 -C "id_rsa_dev"
+ssh-keygen -t rsa -b 4096 -C "azure-devops-dev"
 ```
 2. Configure the server
 - Log in to your Linux server using your current username/password.

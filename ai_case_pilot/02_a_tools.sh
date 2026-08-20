@@ -39,8 +39,7 @@ URIs: https://security.ubuntu.com/ubuntu/
 sudo apt clean
 # optional
 sudo rm -rf /var/lib/apt/lists/* 
-sudo apt update
-sudo apt upgrade -y
+sudo apt update && sudo apt upgrade -y
 sudo reboot
 dpkg -l ca-certificates curl apt-transport-https lsb-release gnupg
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -72,19 +71,19 @@ docker network create shared_network
 ```
 - Set Up database_service
 ```sh
-sudo mkdir -p /app/backend && cd /app/backend/
+sudo mkdir -p /app/backend_ccd && cd /app/backend_ccd/
 ls -al
-sudo chmod -R 755 /app/backend/
-sudo chown adminuser:adminuser /app/backend/
-touch .env.databaseservice
+sudo chmod -R 755 /app/backend_ccd/
+sudo chown adminuser:adminuser /app/backend_ccd/
+touch .env.ccd-auth-service
 nano docker-compose.yml
 ```
 - setup frontend
 ```sh
-sudo mkdir -p /app/frontend && cd /app/frontend/
+sudo mkdir -p /app/frontend_ccd/&& cd /app/frontend_ccd/
 ls -al
-sudo chmod -R 755 /app/frontend/
-sudo chown adminuser:adminuser /app/frontend/
+sudo chmod -R 755 /app/frontend_ccd/
+sudo chown adminuser:adminuser /app/frontend_ccd/
 touch .env.frontend
 nano docker-compose.yml
 ```

@@ -1,0 +1,21 @@
+services:
+  mcp-mcp_keycloak:
+    container_name: mcp-mcp_keycloak
+    image:  developmentinlogicairegistry.azurecr.io/mcp-mcp_keycloak:latest
+    restart: unless-stopped
+    ports:
+      - "6042:6042"
+    env_file:
+      - .env.mcp-mcp_keycloak
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6042/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  shared_network:
+    external: true

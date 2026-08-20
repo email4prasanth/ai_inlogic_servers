@@ -15,7 +15,7 @@
  - copy Download the agent, then open server
  wget https://vstsagentpackage.azureedge.net/agent/4.274.1/vsts-agent-linux-x64-4.274.1.tar.gz
  ll (agent got downloaded)
- tar xzvf https://vstsagentpackage.azureedge.net/agent/4.274.1/vsts-agent-linux-x64-4.274.1.tar.gz
+ tar xzvf vsts-agent-linux-x64-4.274.1.tar.gz
  ll
  sudo rm -rf vsts-agent-linux-x64-4.274.1.tar.gz
 ./config.sh
@@ -32,7 +32,7 @@ https://microsoft.com/devicelogin
 - Option-1 use existing office id
 ```sh
 Agent pool name : AILinuxAgentPool (for Azure)
- Enter agent name (press enter for ai-ado-agent-01) 
+ Enter agent name (press enter for ai-ado-agent-02) 
  - _work folder will create
  enter
  ./run.sh & 

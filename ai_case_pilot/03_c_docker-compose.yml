@@ -1,0 +1,21 @@
+services:
+  ccd-auth-service:
+    container_name: ccd-auth-service
+    image:  developmentinlogicairegistry.azurecr.io/ccd-auth-service:latest
+    restart: unless-stopped
+    ports:
+      - "6024:6024"
+    env_file:
+      - .env.ccd-auth-service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6024/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+networks:
+  shared_network:
+    external: true

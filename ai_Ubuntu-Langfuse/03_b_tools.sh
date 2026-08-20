@@ -72,19 +72,19 @@ docker network create shared_network
 ```
 - Set Up database_service
 ```sh
-sudo mkdir -p /app/backend && cd /app/backend/
+sudo mkdir -p /app/backend_langfuse && cd /app/backend_langfuse/
 ls -al
-sudo chmod -R 755 /app/backend/
-sudo chown adminuser:adminuser /app/backend/
+sudo chmod -R 755 /app/backend_langfuse/
+sudo chown adminuser:adminuser /app/backend_langfuse/
 touch .env.databaseservice
 nano docker-compose.yml
 ```
 - setup frontend
 ```sh
-sudo mkdir -p /app/frontend && cd /app/frontend/
+sudo mkdir -p /app/frontend_langfuse/&& cd /app/frontend_langfuse/
 ls -al
-sudo chmod -R 755 /app/frontend/
-sudo chown adminuser:adminuser /app/frontend/
+sudo chmod -R 755 /app/frontend_langfuse/
+sudo chown adminuser:adminuser /app/frontend_langfuse/
 touch .env.frontend
 nano docker-compose.yml
 ```

@@ -1,4 +1,4 @@
-# Proposed deployment instructions
+# Deployment instructions
 
 ## 1. Create the tools directory
 
@@ -10,8 +10,7 @@ sudo install -d -m 0755 -o adminuser -g adminuser /app/tools
 cd /app/tools
 ```
 
-Copy all proposed files from this directory into `/app/tools`, including
-`proposed_tools.env`.
+Copy all files from this directory into `/app/tools`, including `tools.env`.
 
 ## 2. Confirm network and application connectivity
 
@@ -29,12 +28,12 @@ network in `/app/backend/docker-compose.yml` and recreate `database_service`.
 
 ## 3. Configure the VM address
 
-The VM's current private IP address is `192.168.3.65`. Install the proposed
-environment file as `.env`; Docker Compose reads this file automatically:
+The VM's current private IP address is `192.168.3.65`. Install the environment
+file as `.env`; Docker Compose reads this file automatically:
 
 ```bash
 cd /app/tools
-cp proposed_tools.env .env
+cp tools.env .env
 chmod 600 .env
 ```
 
@@ -65,17 +64,17 @@ started as one combined model:
 
 ```bash
 cd /app/tools
-docker compose -p portainer -f proposed_portainer.yml config -q
+docker compose -p portainer -f portainer.yml config -q
 docker compose -p monitoring \
-  -f proposed_monitoring.yml \
-  -f proposed_grafana.yml config -q
+  -f monitoring.yml \
+  -f grafana.yml config -q
 ```
 
 ## 6. Start Portainer
 
 ```bash
-docker compose -p portainer -f proposed_portainer.yml pull
-docker compose -p portainer -f proposed_portainer.yml up -d
+docker compose -p portainer -f portainer.yml pull
+docker compose -p portainer -f portainer.yml up -d
 ```
 
 Portainer: `https://192.168.3.65:7000`
@@ -87,12 +86,12 @@ show a certificate warning until a trusted reverse proxy/certificate is added.
 
 ```bash
 docker compose -p monitoring \
-  -f proposed_monitoring.yml \
-  -f proposed_grafana.yml pull
+  -f monitoring.yml \
+  -f grafana.yml pull
 
 docker compose -p monitoring \
-  -f proposed_monitoring.yml \
-  -f proposed_grafana.yml up -d
+  -f monitoring.yml \
+  -f grafana.yml up -d
 ```
 
 Prometheus: `http://192.168.3.65:7001`
@@ -106,10 +105,10 @@ automatically as `http://prometheus:9090`.
 ## 8. Verify the deployment
 
 ```bash
-docker compose -p portainer -f proposed_portainer.yml ps
+docker compose -p portainer -f portainer.yml ps
 docker compose -p monitoring \
-  -f proposed_monitoring.yml \
-  -f proposed_grafana.yml ps
+  -f monitoring.yml \
+  -f grafana.yml ps
 
 curl -kfsS https://192.168.3.65:7000/api/status
 curl -fsS http://192.168.3.65:7001/-/ready
@@ -127,7 +126,7 @@ SSH:
 
 ```bash
 ls -al /app/tools
-less /app/tools/proposed_Deployment_Instructions.md
+less /app/tools/Deployment_Instructions.md
 ```
 
 The browser accesses the running applications through ports `7000` to `7002`.

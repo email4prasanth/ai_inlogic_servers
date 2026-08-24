@@ -14,7 +14,7 @@ services:
       - grafana_admin_password
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./proposed_grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
     depends_on:
       prometheus:
         condition: service_healthy

@@ -1,4 +1,4 @@
-# Proposed directory structure
+# Directory structure
 
 ```text
 /app/
@@ -6,17 +6,17 @@
 |   `-- docker-compose.yml                 # Existing application services
 |-- frontend/                              # Existing frontend deployment
 `-- tools/
-    |-- proposed_portainer.yml             # Portainer Compose model
-    |-- proposed_monitoring.yml            # Prometheus and exporters
-    |-- proposed_grafana.yml               # Grafana Compose fragment
-    |-- proposed_prometheus.yml            # Prometheus scrape configuration
-    |-- proposed_grafana-datasource.yml     # Automatic Grafana data source
-    |-- proposed_tools.env                  # VM address configuration template
+    |-- portainer.yml                      # Portainer Compose model
+    |-- monitoring.yml                     # Prometheus and exporters
+    |-- grafana.yml                        # Grafana Compose fragment
+    |-- prometheus.yml                     # Prometheus scrape configuration
+    |-- grafana-datasource.yml              # Automatic Grafana data source
+    |-- tools.env                          # VM address configuration template
     |-- grafana_admin_password              # Create on VM; do not commit
-    `-- .env                                # Copy of proposed_tools.env on the VM
+    `-- .env                                # Copy of tools.env on the VM
 ```
 
-`proposed_monitoring.yml` and `proposed_grafana.yml` form one Compose project
+`monitoring.yml` and `grafana.yml` form one Compose project
 and must be supplied together in the same `docker compose` command.
 
 Published host ports are restricted to the requested range:

@@ -1,0 +1,38 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          environment: production
+          service: prometheus
+
+  # This target works only when database_service is attached to shared_network
+  # and exposes Prometheus-format metrics at /metrics.
+  - job_name: database_service
+    scrape_interval: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["database_service:6000"]
+        labels:
+          environment: production
+          service: database_service
+
+  - job_name: node_exporter
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          environment: production
+          service: node_exporter
+
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          environment: production
+          service: cadvisor
+

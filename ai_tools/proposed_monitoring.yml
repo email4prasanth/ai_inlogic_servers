@@ -1,0 +1,67 @@
+name: monitoring
+
+services:
+  prometheus:
+    image: prom/prometheus:v3.5.3
+    container_name: prometheus
+    restart: unless-stopped
+    ports:
+      - "${TOOLS_BIND_ADDRESS:-127.0.0.1}:7001:9090"
+    volumes:
+      - ./proposed_prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --storage.tsdb.retention.size=10GB
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - monitoring_network
+      - shared_network
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.11.1
+    container_name: node-exporter
+    restart: unless-stopped
+    pid: host
+    command:
+      - --path.rootfs=/host
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/containers/storage/.+)($$|/)
+    volumes:
+      - /:/host:ro,rslave
+    # No host port is published; Prometheus uses node-exporter:9100 internally.
+    networks:
+      - monitoring_network
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:v0.60.5
+    container_name: cadvisor
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    # No host port is published; Prometheus uses cadvisor:8080 internally.
+    networks:
+      - monitoring_network
+
+volumes:
+  prometheus_data:
+
+networks:
+  monitoring_network:
+  shared_network:
+    name: shared_network
+    external: true
+

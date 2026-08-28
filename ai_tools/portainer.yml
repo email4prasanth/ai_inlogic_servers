@@ -8,9 +8,17 @@ services:
     ports:
       # HTTPS UI. Keep the bind address private unless protected by a firewall/VPN.
       - "${TOOLS_BIND_ADDRESS:-127.0.0.1}:7000:9443"
+    command:
+      - --admin-password-file=/run/secrets/portainer_admin_password
+    secrets:
+      - portainer_admin_password
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
 
 volumes:
   portainer_data:
+
+secrets:
+  portainer_admin_password:
+    file: ./portainer_admin_password

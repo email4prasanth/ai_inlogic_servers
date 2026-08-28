@@ -1,3 +1,4 @@
 .env
 grafana_admin_password
+portainer_admin_password
 redis_password

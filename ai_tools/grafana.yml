@@ -15,6 +15,7 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana-datasource.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - ./grafana-loki-datasource.yml:/etc/grafana/provisioning/datasources/loki.yml:ro
     depends_on:
       prometheus:
         condition: service_healthy

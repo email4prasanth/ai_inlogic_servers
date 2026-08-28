@@ -9,6 +9,7 @@ scrape_configs:
       - targets: ["localhost:9090"]
         labels:
           environment: sandbox
+          server: tools
           service: prometheus
 
   - job_name: node_exporter
@@ -16,6 +17,7 @@ scrape_configs:
       - targets: ["node-exporter:9100"]
         labels:
           environment: sandbox
+          server: tools
           service: node_exporter
 
   - job_name: cadvisor
@@ -23,4 +25,41 @@ scrape_configs:
       - targets: ["cadvisor:8080"]
         labels:
           environment: sandbox
+          server: tools
+          service: cadvisor
+
+  - job_name: remote_node_exporters
+    static_configs:
+      - targets: ["192.168.3.53:7100"]
+        labels:
+          environment: sandbox
+          server: ccd
+          service: node_exporter
+      - targets: ["192.168.3.54:7100"]
+        labels:
+          environment: sandbox
+          server: mcp
+          service: node_exporter
+      - targets: ["192.168.3.55:7100"]
+        labels:
+          environment: sandbox
+          server: langfuse
+          service: node_exporter
+
+  - job_name: remote_cadvisor
+    static_configs:
+      - targets: ["192.168.3.53:7101"]
+        labels:
+          environment: sandbox
+          server: ccd
+          service: cadvisor
+      - targets: ["192.168.3.54:7101"]
+        labels:
+          environment: sandbox
+          server: mcp
+          service: cadvisor
+      - targets: ["192.168.3.55:7101"]
+        labels:
+          environment: sandbox
+          server: langfuse
           service: cadvisor

@@ -1,0 +1,35 @@
+name: redis
+
+services:
+  redis:
+    image: redis:8.6.5-alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "${TOOLS_BIND_ADDRESS:-127.0.0.1}:7003:6379"
+    command: ["sh", "/usr/local/bin/redis-with-password.sh"]
+    secrets:
+      - redis_password
+    volumes:
+      - redis_data:/data
+      - ./redis-entrypoint.sh:/usr/local/bin/redis-with-password.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "REDISCLI_AUTH=$$(cat /run/secrets/redis_password) redis-cli ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - shared_network
+
+volumes:
+  redis_data:
+
+secrets:
+  redis_password:
+    file: ./redis_password
+
+networks:
+  shared_network:
+    name: shared_network
+    external: true

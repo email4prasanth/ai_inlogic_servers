@@ -23,7 +23,6 @@ services:
       start_period: 15s
     networks:
       - monitoring_network
-      - shared_network
 
   node-exporter:
     image: quay.io/prometheus/node-exporter:v1.11.1
@@ -61,6 +60,3 @@ volumes:
 
 networks:
   monitoring_network:
-  shared_network:
-    name: shared_network
-    external: true

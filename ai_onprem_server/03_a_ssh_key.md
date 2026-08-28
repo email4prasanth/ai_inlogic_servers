@@ -1,7 +1,7 @@
 ### Create an SSH key pair
 1. On your local machine (or any Linux system), generate a key pair:
 ```sh
-ssh-keygen -t rsa -b 4096 -C "id_rsa_dev"
+ssh-keygen -t rsa -b 4096 -C "id_rsa_sandbox"
 ```
 2. Configure the server
 - Log in to your Linux server using your current username/password.
@@ -16,7 +16,7 @@ chmod 600 ~/.ssh/authorized_keys
 ```
 - Open power shell and try to connect using private key
 ```sh
-ssh -i id_rsa_dev adminuser@your-server
+ssh -i id_rsa_sandbox adminuser@your-server
 ```
 - It should log in without asking for a password.
 ### Store the private key in Azure DevOps

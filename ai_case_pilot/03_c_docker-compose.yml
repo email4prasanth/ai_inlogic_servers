@@ -1,7 +1,7 @@
 services:
   ccd-auth-service:
     container_name: ccd-auth-service
-    image:  developmentinlogicairegistry.azurecr.io/ccd-auth-service:latest
+    image: sandboxinlogicairegistry.azurecr.io/ccd-auth-service:latest
     restart: unless-stopped
     ports:
       - "6024:6024"
@@ -16,6 +16,77 @@ services:
       retries: 5
       start_period: 20s
 
+  ccd-investigation-service:
+    container_name: ccd-investigation-service
+    image: sandboxinlogicairegistry.azurecr.io/ccd-investigation-service:latest
+    restart: unless-stopped
+    ports:
+      - "6025:6025"
+    env_file:
+      - .env.ccd-investigation-service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6025/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ccd-agent-worker:
+    container_name: ccd-agent-worker
+    image: sandboxinlogicairegistry.azurecr.io/ccd-agent-worker:latest
+    restart: unless-stopped
+    ports:
+      - "6022:6022"
+    env_file:
+      - .env.ccd-agent-worker
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6022/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ccd-api-gateway:
+    container_name: ccd-api-gateway
+    image: sandboxinlogicairegistry.azurecr.io/ccd-api-gateway:latest
+    restart: unless-stopped
+    ports:
+      - "6023:6023"
+    env_file:
+      - .env.ccd-api-gateway
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6023/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
 networks:
   shared_network:
     external: true
+
+
+-------
+
+services:
+  frontend_ccd:
+    container_name: frontend_ccd
+    image: sandboxinlogicairegistry.azurecr.io/frontend_ccd:latest
+    restart: unless-stopped
+
+    ports:
+      - "5021:5021"
+
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true
+

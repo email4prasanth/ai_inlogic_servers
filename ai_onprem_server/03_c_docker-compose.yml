@@ -1,7 +1,7 @@
 services:
   database_service:
     container_name: database_service
-    image:  developmentinlogicairegistry.azurecr.io/database_service:latest
+    image: sandboxinlogicairegistry.azurecr.io/database_service:latest
     restart: unless-stopped
     ports:
       - "6000:6000"
@@ -18,7 +18,7 @@ services:
 
   login_auth_service:
     container_name: login_auth_service
-    image:  developmentinlogicairegistry.azurecr.io/login_auth_service:latest
+    image: sandboxinlogicairegistry.azurecr.io/login_auth_service:latest
     restart: unless-stopped
     ports:
       - "6001:6001"
@@ -32,6 +32,183 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+    volumes:
+      - ecc_jwt:/run/secrets/ecc_jwt
+
+  ado_service:
+    container_name: ado_service
+    image: sandboxinlogicairegistry.azurecr.io/ado_service:latest
+    restart: unless-stopped
+    ports:
+      - "6003:6003"
+    env_file:
+      - .env.ado_service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6003/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  chat_service:
+    container_name: chat_service
+    image: sandboxinlogicairegistry.azurecr.io/chat_service:latest
+    restart: unless-stopped
+    ports:
+      - "6010:6010"
+    env_file:
+      - .env.chat_service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6010/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  checklist_generation:
+    container_name: checklist_generation
+    image: sandboxinlogicairegistry.azurecr.io/checklist_generation:latest
+    restart: unless-stopped
+    ports:
+      - "6004:6004"
+    env_file:
+      - .env.checklist_generation
+    networks:
+      - shared_network
+    volumes:
+      - checklist_generation_runtime:/app/runtime
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6004/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  checklist_llm_parser_service:
+    container_name: checklist_llm_parser_service
+    image: sandboxinlogicairegistry.azurecr.io/checklist_llm_parser_service:latest
+    restart: unless-stopped
+    ports:
+      - "6005:6005"
+    env_file:
+      - .env.checklist_llm_parser_service
+    networks:
+      - shared_network
+    volumes:
+      - checklist_parser_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6005/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  checklist_llm_parser_worker:
+    container_name: checklist_llm_parser_worker
+    image: sandboxinlogicairegistry.azurecr.io/checklist_llm_parser_service:latest
+    restart: unless-stopped
+    env_file:
+      - .env.checklist_llm_parser_service
+    networks:
+      - shared_network
+    volumes:
+      - checklist_parser_storage:/app/storage
+    command:
+      [
+        "celery",
+        "-A",
+        "checklist_llm_parser_service.celery_app.celery_app",
+        "worker",
+        "--loglevel=info",
+        "--pool=threads",
+        "--concurrency=3"
+      ]
+
+  configuration_service:
+    container_name: configuration_service
+    image: sandboxinlogicairegistry.azurecr.io/configuration_service:latest
+    restart: unless-stopped
+    ports:
+      - "6006:6006"
+    env_file:
+      - .env.configuration_service
+    networks:
+      - shared_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6006/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  execute_mobile_service:
+    container_name: execute_mobile_service
+    image: sandboxinlogicairegistry.azurecr.io/execute_mobile_service:latest
+    restart: unless-stopped
+    ports:
+      - "6007:6007"
+    env_file:
+      - .env.execute_mobile_service
+    networks:
+      - shared_network
+    volumes:
+      - execute_mobile_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6007/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  execute_web_service:
+    container_name: execute_web_service
+    image: sandboxinlogicairegistry.azurecr.io/execute_web_service:latest
+    restart: unless-stopped
+    ports:
+      - "6008:6008"
+    env_file:
+      - .env.execute_web_service
+    networks:
+      - shared_network
+    volumes:
+      - execute_web_storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6008/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api_gateway:
+    container_name: api_gateway
+    image: sandboxinlogicairegistry.azurecr.io/api_gateway:latest
+    restart: unless-stopped
+    ports:
+      - "6002:6002"
+    env_file:
+      - .env.api_gateway
+    networks:
+      - shared_network
+    volumes:
+      - ecc_jwt:/run/secrets/ecc_jwt:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6002/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  ecc_jwt:
+  checklist_parser_storage:
+  checklist_generation_runtime:
+  execute_mobile_storage:
+  execute_web_storage:
+
 networks:
   shared_network:
     external: true

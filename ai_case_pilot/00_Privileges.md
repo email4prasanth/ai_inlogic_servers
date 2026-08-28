@@ -5,20 +5,20 @@ groups
 id
 sudo -l
 getent group sudo
-grep "^admin_ai:" /etc/passwd
+grep "^admin-pc:" /etc/passwd
 ```
 - Group Memberships
-    - admin_ai – Primary user group.
+    - admin-pc – Primary user group.
     - adm – Can read many system log files (e.g., /var/log).
     - cdrom – Access to optical drives.
     - sudo – Administrative privileges using sudo.
     - dip – Dial-up/network device access (legacy; often unused).
     - plugdev – Access to removable devices.
     - users – General users group.
-    - lxd – Can manage LXD contadmin_ainers. Membership in this group is effectively privileged because it can be used to gadmin_ain root access if LXD is configured.
+    - lxd – Can manage LXD contadmin-pcners. Membership in this group is effectively privileged because it can be used to gadmin-pcn root access if LXD is configured.
 ## Rename the user
 0. create a temp sudo user than
-1. login to temp user and rename the admin_ai to adminuser
+1. login to temp user and rename the admin-pc to adminuser
 2. logout from temp user and check the login adminuser user
 3. delete the temp sudo user
 ```sh
@@ -30,15 +30,15 @@ exit
 ```
 - Step 1: Log in as the Temporary User
 ```sh
-ssh tempadmin@192.168.3.61
+ssh tempadmin@192.168.0.129
 password:
 whoami
 ```
-- Step 2: Rename admin_ai to adminuser and update password
+- Step 2: Rename admin-pc to adminuser and update password
 ```sh
-sudo loginctl terminate-user admin_ai
-sudo usermod -l adminuser admin_ai # login name
-sudo groupmod -n adminuser admin_ai # primary group 
+sudo loginctl terminate-user admin-pc
+sudo usermod -l adminuser admin-pc # login name
+sudo groupmod -n adminuser admin-pc # primary group 
 sudo usermod -d /home/adminuser -m adminuser # home directory
 getent passwd adminuser # verify
 ls -ld /home/adminuser # Check the home directory
@@ -48,7 +48,7 @@ exit
 ```
 # Step 3: Log in as adminuser
 ```sh
-ssh adminuser@192.168.3.61
+ssh adminuser@192.168.0.129
 password:
 whoami
 id

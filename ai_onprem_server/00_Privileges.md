@@ -5,10 +5,10 @@ groups
 id
 sudo -l
 getent group sudo
-grep "^ai_dev_inlogic_be:" /etc/passwd
+grep "^admin-pc:" /etc/passwd
 ```
 - Group Memberships
-    - ai_dev_inlogic_be – Primary user group.
+    - admin-pc – Primary user group.
     - adm – Can read many system log files (e.g., /var/log).
     - cdrom – Access to optical drives.
     - sudo – Administrative privileges using sudo.
@@ -18,7 +18,7 @@ grep "^ai_dev_inlogic_be:" /etc/passwd
     - lxd – Can manage LXD containers. Membership in this group is effectively privileged because it can be used to gain root access if LXD is configured.
 ## Rename the user
 0. create a temp sudo user than
-1. login to temp user and rename the ai_dev_inlogic_be to adminuser
+1. login to temp user and rename the admin-pc to adminuser
 2. logout from temp user and check the login adminuser user
 3. delete the temp sudo user
 ```sh
@@ -30,14 +30,14 @@ exit
 ```
 - Step 1: Log in as the Temporary User
 ```sh
-ssh tempadmin@192.168.0.140
+ssh tempadmin@192.168.3.68
 password:
 whoami
 ```
-- Step 2: Rename ai_dev_inlogic_be to adminuser and update password
+- Step 2: Rename admin-pc to adminuser and update password
 ```sh
-sudo usermod -l adminuser ai_dev_inlogic_be # login name
-sudo groupmod -n adminuser ai_dev_inlogic_be # primary group 
+sudo usermod -l adminuser admin-pc # login name
+sudo groupmod -n adminuser admin-pc # primary group 
 sudo usermod -d /home/adminuser -m adminuser # home directory
 getent passwd adminuser # verify
 ls -ld /home/adminuser # Check the home directory
@@ -47,7 +47,7 @@ exit
 ```
 # Step 3: Log in as adminuser
 ```sh
-ssh adminuser@192.168.0.140
+ssh adminuser@192.168.3.68
 password:
 whoami
 id

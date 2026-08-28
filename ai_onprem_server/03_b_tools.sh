@@ -68,6 +68,7 @@ sudo systemctl restart docker
 ## Check the network
 - If not exists, Create Docker Shared Network for Service Communication
 ```sh
+docker network inspect shared_network
 docker network create shared_network
 ```
 - Set Up database_service
@@ -88,3 +89,11 @@ sudo chown adminuser:adminuser /app/frontend/
 touch .env.frontend
 nano docker-compose.yml
 ```
+- setup tools
+```sh
+sudo mkdir -p /app/tools && cd /app/tools/
+ls -al
+sudo chmod -R 755 /app/tools/
+sudo chown adminuser:adminuser /app/tools/
+touch .env.tools
+nano docker-compose.yml

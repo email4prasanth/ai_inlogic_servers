@@ -18,11 +18,11 @@ http://<your-ec2-public-ip>
 ```sh
 sudo systemctl restart nginx
 sudo systemctl reload nginx
-sudo systemctl stop nginx
+sudo systemctl status nginx
 ```
 - create your own Nginx site configuration
 ```sh
-sudo vi /etc/nginx/sites-available/ai-ccd-inlogic # use 03_b_nginx_file.md
+sudo nano /etc/nginx/sites-available/ai-ccd-inlogic # use 03_b_nginx_file.md
 sudo unlink /etc/nginx/sites-enabled/default
 sudo ln -s /etc/nginx/sites-available/ai-ccd-inlogic /etc/nginx/sites-enabled/
 sudo nginx -t # test the config first to avoid errors

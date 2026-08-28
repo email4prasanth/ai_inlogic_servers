@@ -22,9 +22,9 @@ sudo systemctl stop nginx
 ```
 - create your own Nginx site configuration
 ```sh
-sudo vi /etc/nginx/sites-available/ai-inlogic # use 02_b_nginx_file.md
-sudo unlink /etc/nginx/sites-enabled/default
-sudo ln -s /etc/nginx/sites-available/ai-inlogic /etc/nginx/sites-enabled/
+sudo nano /etc/nginx/sites-available/api-mmh-sandbox.inlogictech.com # use 02_b_nginx_file.md
+sudo unlink /etc/nginx/sites-enabled/ai-inlogic-sandbox
+sudo ln -s /etc/nginx/sites-available/api-mmh-sandbox.inlogictech.com /etc/nginx/sites-enabled/
 sudo nginx -t # test the config first to avoid errors
 sudo systemctl reload nginx
 sudo systemctl status nginx
